@@ -7,7 +7,7 @@ export function CalendarProvider({ children }) {
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
-        fetch('https://cdn-crisutf.pages.dev/calendario/events.json')
+        fetch('https://crisutf-cdn.pages.dev/calendario/events.json')
             .then(response => response.json())
             .then(data => {
                 const parsedEvents = data.map(event => ({
@@ -29,4 +29,5 @@ export function CalendarProvider({ children }) {
         </CalendarContext.Provider>
     );
 }
+
 
