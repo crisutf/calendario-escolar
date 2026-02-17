@@ -33,20 +33,18 @@ Para que se vean correctamente los cambios de la versión del **11/12/2025**, es
 2. Entra en **Privacidad y seguridad**.  
 3. Ve a **Configuración del sitio**.  
 4. Pulsa **Ver permisos y datos almacenados en todos los sitios**.  
-5. Busca estas 3 URL:
-   - `crisu.qzz.io`
-   - `crisutf.qzz.io`
-   - `calendario-escolar.pages.dev`
+5. Busca estas 2 URL:
+   - `calendario.crisu.qzz.io`
+   - `calendario-escolar-dfh.pages.dev`
 6. Pulsa **Eliminar datos** en cada una.  
 7. Recarga la página.
 
 #### 🔹 Safari (iPhone, iPad o Mac)
 1. Abre **Ajustes** (iOS) o **Safari → Preferencias** (Mac).  
 2. Ve a **Avanzado → Datos de sitios web**.  
-3. Busca estas 3 URL:
-   - `crisu.qzz.io`
-   - `crisutf.qzz.io`
-   - `calendario-escolar.pages.dev`
+3. Busca estas 2 URL:
+   - `calendario.crisu.qzz.io`
+   - `calendario-escolar-dfh.pages.dev`
 4. Elimina los datos de cada una.  
 5. Recarga la web.
 6. Y ya esta
