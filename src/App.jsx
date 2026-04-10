@@ -55,7 +55,7 @@ function Layout() {
             >
               <div className="h-px w-8 bg-slate-400 dark:bg-slate-600" />
               <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase text-slate-500 dark:text-slate-400">
-                Hecho por Crisutf
+                Esto es un:
               </span>
             </motion.div>
             
@@ -90,7 +90,7 @@ function Layout() {
       <Calendar />
       
       <footer className="max-w-7xl mx-auto mt-16 pb-8 px-4 text-center text-slate-400 dark:text-slate-600 text-[10px] font-bold tracking-[0.4em] uppercase border-t border-slate-200 dark:border-slate-800 pt-8">
-        <div>Calendario Digital hecho por Crisutf</div>
+        <div>Crisutf</div>
       </footer>
     </div>
   );
