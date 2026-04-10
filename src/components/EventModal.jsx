@@ -24,81 +24,97 @@ export function EventModal({ isOpen, onClose, date, events }) {
                         className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 transition-all duration-300"
                     />
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.98, y: 10 }}
                         animate={{
                             opacity: 1,
                             scale: 1,
                             y: 0,
-                            transition: { type: "spring", damping: 25, stiffness: 300 }
+                            transition: { type: "spring", damping: 30, stiffness: 400 }
                         }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed inset-0 m-auto z-50 w-full max-w-md h-fit glass rounded-[2rem] shadow-2xl overflow-hidden border border-white/50"
+                        exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                        className={cn(
+                            "fixed z-50 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800",
+                            "inset-x-0 bottom-0 top-auto sm:inset-0 sm:m-auto sm:w-full sm:max-w-lg sm:h-fit rounded-t-[2.5rem] sm:rounded-[2rem]"
+                        )}
                     >
-                        <div className="p-6 relative overflow-hidden">
-                            {/* Decorative background blob */}
-                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-100 rounded-full blur-3xl opacity-50 pointer-events-none" />
-
-                            <div className="flex justify-between items-center mb-8 relative z-10">
+                        <div className="p-8 sm:p-10 relative">
+                            <div className="flex justify-between items-start mb-10">
                                 <div>
-                                    <h3 className="text-3xl font-bold text-slate-800 capitalize tracking-tight">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="h-1 w-6 bg-slate-900 dark:bg-white rounded-full" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+                                            Detalles de la Agenda
+                                        </span>
+                                    </div>
+                                    <h3 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white capitalize tracking-tighter">
                                         {format(date, 'EEEE d', { locale: es })}
                                     </h3>
-                                    <p className="text-slate-500 capitalize text-lg">
+                                    <p className="text-slate-400 dark:text-slate-500 capitalize text-lg font-bold tracking-tight mt-1">
                                         {format(date, 'MMMM yyyy', { locale: es })}
                                     </p>
                                 </div>
                                 <button
                                     onClick={onClose}
-                                    className="p-2 bg-white/50 hover:bg-white rounded-full transition-all hover:rotate-90 text-slate-500 hover:text-red-500 shadow-sm"
+                                    className="p-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-all text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white border border-slate-100 dark:border-slate-700"
                                 >
-                                    <X className="w-5 h-5" />
+                                    <X className="w-6 h-6" />
                                 </button>
                             </div>
 
-                            <div className="space-y-4 mb-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar relative z-10">
+                            <div className="space-y-4 mb-4 max-h-[50vh] sm:max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
                                 {dayEvents.length === 0 ? (
-                                    <div className="text-center py-12 text-slate-400 flex flex-col items-center">
-                                        <div className="p-4 bg-slate-50 rounded-full mb-4">
-                                            <CalendarIcon className="w-8 h-8 opacity-50" />
+                                    <div className="text-center py-20 bg-slate-50/50 dark:bg-slate-950/20 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center">
+                                        <div className="p-6 bg-white dark:bg-slate-900 rounded-full mb-6 shadow-sm">
+                                            <CalendarIcon className="w-10 h-10 text-slate-200 dark:text-slate-700" />
                                         </div>
-                                        <p>No hay eventos programados</p>
+                                        <p className="text-xl font-bold text-slate-300 dark:text-slate-600 tracking-tight">Sin actividades programadas</p>
                                     </div>
                                 ) : (
                                     dayEvents.map((event, idx) => (
                                         <motion.div
                                             key={idx}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: idx * 0.1 }}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.05 }}
                                             className={cn(
-                                                "p-4 rounded-2xl border flex items-center gap-4 transition-all hover:scale-[1.02]",
-                                                event.type === 'exam' ? "bg-red-50/50 border-red-100 hover:bg-red-50 hover:border-red-200" :
-                                                    event.type === 'holiday' ? "bg-emerald-50/50 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200" :
-                                                        "bg-blue-50/50 border-blue-100 hover:bg-blue-50 hover:border-blue-200"
+                                                "p-6 rounded-3xl border flex items-center gap-6 transition-all hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-900 shadow-sm",
+                                                event.type === 'exam' ? "border-rose-100 dark:border-rose-900/30" :
+                                                    event.type === 'holiday' ? "border-emerald-100 dark:border-emerald-900/30" :
+                                                        "border-slate-100 dark:border-slate-800"
                                             )}
                                         >
                                             <div className={cn(
-                                                "w-3 h-3 rounded-full shadow-sm ring-2 ring-white",
-                                                event.type === 'exam' ? "bg-red-500" :
-                                                    event.type === 'holiday' ? "bg-emerald-500" :
-                                                        "bg-blue-500"
-                                            )} />
+                                                "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0",
+                                                event.type === 'exam' ? "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400" :
+                                                    event.type === 'holiday' ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" :
+                                                        "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400"
+                                            )}>
+                                                <CalendarIcon className="w-6 h-6" />
+                                            </div>
 
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-semibold text-slate-800 truncate text-sm sm:text-base">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className={cn(
+                                                        "text-[9px] uppercase font-black tracking-widest px-2 py-0.5 rounded-md",
+                                                        event.type === 'exam' ? "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" :
+                                                            event.type === 'holiday' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" :
+                                                                "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
+                                                    )}>
+                                                        {event.type === 'exam' ? 'Examen' : event.type === 'holiday' ? 'Festivo' : 'Evento'}
+                                                    </span>
+                                                </div>
+                                                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xl tracking-tight">
                                                     {event.title}
                                                 </h4>
-                                                <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mt-0.5">
-                                                    {event.type === 'exam' ? 'Examen' : event.type === 'holiday' ? 'Festivo' : 'Evento'}
-                                                </p>
                                             </div>
                                         </motion.div>
                                     ))
                                 )}
                             </div>
 
-                            <div className="mt-8 pt-4 border-t border-slate-100 text-center text-xs text-slate-400 font-medium">
-                                Los eventos se actualizan automáticamente desde el servidor.
+                            <div className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.2em]">
+                                <span>Calendario Digital hecho por Crisutf</span>
+                                <span>Ref: {format(date, 'ddMMyy')}</span>
                             </div>
                         </div>
                     </motion.div>

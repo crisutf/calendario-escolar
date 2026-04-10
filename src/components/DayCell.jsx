@@ -7,63 +7,70 @@ export const DayCell = memo(function DayCell({ date, currentMonth, dayEvents = [
     const isCurrentMonth = isSameMonth(date, currentMonth);
     const isDayToday = isToday(date);
 
-    // Limit visible events
-    const MAX_VISIBLE_EVENTS = 3;
-    const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS);
-    const hiddenCount = dayEvents.length - MAX_VISIBLE_EVENTS;
+    // Limit visible events based on screen size (simplified for now, using dots on mobile)
+    const MAX_VISIBLE_EVENTS_DESKTOP = 3;
+    const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS_DESKTOP);
+    const hiddenCount = dayEvents.length - MAX_VISIBLE_EVENTS_DESKTOP;
 
-    if (!isCurrentMonth) return <div className="min-h-[9rem] border-b border-r border-gray-100/30 bg-gray-50/20" />;
+    if (!isCurrentMonth) return <div className="min-h-[5rem] sm:min-h-[9rem] border-b border-r border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/20" />;
 
     return (
         <div
             onClick={() => onClick(date)}
             className={cn(
-                "min-h-[9rem] sm:min-h-[10rem] p-3 transition-all duration-300 cursor-pointer relative group",
-                "border-b border-r border-white/30",
-                "hover:bg-white/60 hover:shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]",
-                isDayToday && "bg-indigo-50/30"
+                "min-h-[5rem] sm:min-h-[10rem] p-1.5 sm:p-3 transition-all duration-200 cursor-pointer relative group bg-white dark:bg-slate-900",
+                "border-b border-r border-slate-100 dark:border-slate-800",
+                "hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:z-10",
+                isDayToday && "bg-slate-50 dark:bg-slate-800/30"
             )}
         >
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start mb-1 sm:mb-2">
                 <span className={cn(
-                    "w-8 h-8 flex items-center justify-center rounded-xl text-sm font-medium transition-all duration-300",
+                    "w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg text-xs sm:text-sm font-black transition-all duration-300",
                     isDayToday
-                        ? "bg-indigo-600 text-white shadow-indigo-200 shadow-lg scale-110"
-                        : "text-slate-600 group-hover:scale-110 group-hover:bg-white/80 group-hover:shadow-sm"
+                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md"
+                        : "text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white"
                 )}>
                     {format(date, 'd')}
                 </span>
             </div>
 
-            <div className="space-y-1.5">
+            {/* Desktop Events - Minimalist Labels */}
+            <div className="hidden sm:block space-y-1">
                 {visibleEvents.map((event, idx) => (
                     <div
                         key={idx}
                         className={cn(
-                            "text-[11px] px-2 py-1 rounded-lg truncate transition-all duration-300 border backdrop-blur-sm",
-                            "hover:scale-105 hover:z-10 shadow-sm",
+                            "text-[9px] px-2 py-1.5 rounded-md truncate transition-all border",
                             event.type === 'exam'
-                                ? "bg-red-50/80 text-red-700 border-red-100/50 hover:bg-red-100"
+                                ? "bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900/50"
                                 : event.type === 'holiday'
-                                    ? "bg-emerald-50/80 text-emerald-700 border-emerald-100/50 hover:bg-emerald-100"
-                                    : "bg-blue-50/80 text-blue-700 border-blue-100/50 hover:bg-blue-100"
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/50"
+                                    : "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/50"
                         )}
                     >
-                        <div className="flex items-center gap-1.5">
-                            <div className={cn(
-                                "w-1.5 h-1.5 rounded-full shrink-0",
-                                event.type === 'exam' ? "bg-red-500" :
-                                    event.type === 'holiday' ? "bg-emerald-500" : "bg-blue-500"
-                            )} />
-                            <span className="truncate font-medium">{event.title}</span>
-                        </div>
+                        <span className="font-bold tracking-tight">{event.title}</span>
                     </div>
                 ))}
                 {hiddenCount > 0 && (
-                    <div className="text-[10px] text-slate-400 font-medium pl-2 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        +{hiddenCount} más
+                    <div className="text-[8px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest pl-1 pt-0.5">
+                        + {hiddenCount}
                     </div>
                 )}
+            </div>
+
+            {/* Mobile Events - Discrete Bars */}
+            <div className="flex sm:hidden flex-col gap-0.5 mt-1">
+                {dayEvents.slice(0, 3).map((event, idx) => (
+                    <div
+                        key={idx}
+                        className={cn(
+                            "h-1 w-full rounded-full",
+                            event.type === 'exam' ? "bg-rose-500" :
+                                event.type === 'holiday' ? "bg-emerald-500" : "bg-indigo-500"
+                        )}
+                    />
+                ))}
             </div>
         </div>
     );

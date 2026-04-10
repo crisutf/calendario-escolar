@@ -8,50 +8,60 @@ export function CalendarHeader() {
     const { currentDate, nextMonth, prevMonth, goToToday } = useCalendar();
 
     return (
-        <div className="flex items-center justify-between p-6 sm:p-8">
-            <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-6 sm:p-8 gap-6 sm:gap-0 bg-white dark:bg-slate-900">
+            <div className="flex items-center gap-4 sm:gap-10 w-full sm:w-auto justify-between sm:justify-start">
                 <div className="flex flex-col">
-                    <h2 className="text-4xl sm:text-5xl font-bold text-slate-800 dark:text-white capitalize tracking-tight text-glow transition-all duration-300">
+                    <h2 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white capitalize tracking-tighter transition-all duration-300">
                         {format(currentDate, 'MMMM', { locale: es })}
                     </h2>
-                    <span className="text-xl text-slate-400 dark:text-slate-500 font-light tracking-widest pl-1">
-                        {format(currentDate, 'yyyy', { locale: es })}
-                    </span>
+                    <div className="flex items-center gap-3 mt-1">
+                        <span className="text-sm sm:text-base text-slate-400 dark:text-slate-500 font-bold tracking-[0.3em]">
+                            {format(currentDate, 'yyyy', { locale: es })}
+                        </span>
+                        <div className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
+                            Vista Mensual
+                        </span>
+                    </div>
                 </div>
 
-                <div className="flex gap-2 ml-4">
+                <div className="flex items-center bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner">
                     <button
                         onClick={prevMonth}
-                        className="p-3 hover:bg-white/80 dark:hover:bg-slate-700/80 rounded-full transition-all hover:scale-110 active:scale-95 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:shadow-lg border border-transparent hover:border-white/50 dark:hover:border-white/10"
+                        className="p-2 sm:p-2.5 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all active:scale-95 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                         aria-label="Mes anterior"
                     >
-                        <ChevronLeft className="w-6 h-6" />
+                        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
+                    <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
                     <button
                         onClick={nextMonth}
-                        className="p-3 hover:bg-white/80 dark:hover:bg-slate-700/80 rounded-full transition-all hover:scale-110 active:scale-95 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:shadow-lg border border-transparent hover:border-white/50 dark:hover:border-white/10"
+                        className="p-2 sm:p-2.5 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all active:scale-95 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                         aria-label="Mes siguiente"
                     >
-                        <ChevronRight className="w-6 h-6" />
+                        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
             </div>
 
-            <button
-                onClick={goToToday}
-                className="
-                    px-6 py-2.5 
-                    bg-white/40 dark:bg-slate-800/40 hover:bg-white/90 dark:hover:bg-slate-700/90
-                    text-sm font-semibold text-slate-700 dark:text-slate-200
-                    rounded-2xl 
-                    shadow-sm hover:shadow-md 
-                    transition-all hover:-translate-y-0.5 active:translate-y-0
-                    border border-white/40 dark:border-white/10
-                    backdrop-blur-md
-                "
-            >
-                Hoy
-            </button>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                    onClick={goToToday}
+                    className="
+                        flex-1 sm:flex-none
+                        px-8 py-3.5
+                        bg-slate-900 dark:bg-white 
+                        hover:bg-slate-800 dark:hover:bg-slate-100
+                        text-xs font-black uppercase tracking-[0.2em]
+                        text-white dark:text-slate-900
+                        rounded-xl
+                        shadow-lg shadow-slate-200 dark:shadow-none
+                        transition-all hover:-translate-y-0.5 active:translate-y-0
+                    "
+                >
+                    Hoy
+                </button>
+            </div>
         </div>
     );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { CalendarProvider } from './context/CalendarProvider';
 import { Calendar } from './components/Calendar';
 import { useCalendar } from './hooks/useCalendar';
@@ -40,39 +41,57 @@ function Layout() {
   const { currentDate, events } = useCalendar();
   const theme = useThemeMode(currentDate, events);
 
-  const bgClasses = {
-    calm: 'bg-gradient-to-br from-blue-50 to-indigo-50',
-    stress: 'bg-gradient-to-br from-red-50 to-orange-50',
-    aggressive: 'bg-gradient-to-br from-orange-50 to-amber-50',
-    holiday: 'bg-gradient-to-br from-emerald-50 to-teal-50',
-  };
-
   return (
-    <div className={`min-h-screen py-10 px-4 font-sans selection:bg-apple-blue selection:text-white transition-colors duration-700 ${bgClasses[theme] || bgClasses.calm} dark:bg-slate-900`}>
+    <div className={`min-h-screen py-6 sm:py-12 px-4 font-sans selection:bg-slate-900 selection:text-white transition-colors duration-500 bg-slate-50 dark:bg-slate-950`}>
       <ThemeToggle />
-      <div className="max-w-5xl mx-auto mb-12 text-center relative z-10">
-        <div className="inline-block relative">
-          <span className="
-            text-sm sm:text-base font-bold tracking-[0.3em] uppercase 
-            bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent 
-            mb-4 block animate-slide-in
-          ">
-            Calendario Escolar
-          </span>
-          <h1 className="
-            text-6xl sm:text-8xl font-extrabold tracking-tighter 
-            text-slate-900 dark:text-white mb-6 
-            drop-shadow-sm animate-fade-in
-          " style={{ animationDelay: '0.1s' }}>
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
-              2025/26
-            </span>
-          </h1>
+      
+      <div className="max-w-7xl mx-auto mb-8 sm:mb-16 text-left relative z-10 px-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div className="flex-1">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 mb-4"
+            >
+              <div className="h-px w-8 bg-slate-400 dark:bg-slate-600" />
+              <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase text-slate-500 dark:text-slate-400">
+                Hecho por Crisutf
+              </span>
+            </motion.div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-5xl sm:text-7xl font-black tracking-tight text-slate-900 dark:text-white"
+            >
+              Calendario <span className="text-slate-400 dark:text-slate-500 font-light">Digital</span>
+            </motion.h1>
+          </div>
 
-          <div className="h-1 w-24 mx-auto bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full animate-scale-up" style={{ animationDelay: '0.3s' }} />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+          >
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Periodo Lectivo</p>
+              <p className="text-xl font-bold text-slate-800 dark:text-slate-200">2025 — 2026</p>
+            </div>
+            <div className="h-10 w-[1px] bg-slate-200 dark:bg-slate-800" />
+            <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900">
+              <Monitor className="w-5 h-5" />
+            </div>
+          </motion.div>
         </div>
       </div>
+
       <Calendar />
+      
+      <footer className="max-w-7xl mx-auto mt-16 pb-8 px-4 text-center text-slate-400 dark:text-slate-600 text-[10px] font-bold tracking-[0.4em] uppercase border-t border-slate-200 dark:border-slate-800 pt-8">
+        <div>Calendario Digital hecho por Crisutf</div>
+      </footer>
     </div>
   );
 }

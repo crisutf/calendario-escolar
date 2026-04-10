@@ -36,39 +36,39 @@ export function Calendar() {
         setIsModalOpen(false);
     }, []);
 
-    // Dynamic Theme Classes with smoother transitions
+    // Dynamic Theme Classes (Refined for Academic style)
     const themeEffects = {
-        calm: 'shadow-blue-500/5 border-blue-100/50',
-        stress: 'shadow-red-500/10 border-red-100/50',
-        aggressive: 'shadow-orange-500/10 border-orange-100/50',
-        holiday: 'shadow-emerald-500/10 border-emerald-100/50',
+        calm: 'shadow-slate-200/50 border-slate-200/60',
+        stress: 'shadow-rose-100/50 border-rose-200/60',
+        aggressive: 'shadow-amber-100/50 border-amber-200/60',
+        holiday: 'shadow-green-100/50 border-green-200/60',
     };
 
     return (
-        <div className="w-full max-w-6xl mx-auto p-4 sm:p-8 transition-all duration-700 ease-in-out">
+        <div className="w-full max-w-7xl mx-auto p-2 sm:p-6 lg:p-8 transition-all duration-500 ease-in-out">
             <div className={`
-                glass rounded-[2.5rem] overflow-hidden transition-all duration-700 relative z-10
-                ${themeEffects[theme] || themeEffects.calm}
-                dark:bg-slate-800/40 dark:border-white/10
-                animate-fade-in
+                bg-white dark:bg-slate-900 rounded-3xl sm:rounded-[2.5rem] overflow-hidden transition-all duration-500 relative z-10
+                border ${themeEffects[theme] || themeEffects.calm} dark:border-slate-800
+                animate-fade-in shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]
             `}>
                 <CalendarHeader />
 
-                {/* Weekday headers */}
-                <div className="grid grid-cols-7 border-b border-gray-100/50 dark:border-white/10 bg-white/20 dark:bg-slate-900/40 backdrop-blur-sm">
+                {/* Weekday headers - Professional Minimalist */}
+                <div className="grid grid-cols-7 border-y border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                     {weekDays.map((day, i) => (
                         <div
                             key={day}
-                            className="py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest animate-slide-in"
+                            className="py-4 text-center text-[10px] sm:text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em] animate-slide-in"
                             style={{ animationDelay: `${i * 0.05}s` }}
                         >
-                            {day}
+                            <span className="hidden sm:inline">{day}</span>
+                            <span className="sm:hidden">{day.charAt(0)}</span>
                         </div>
                     ))}
                 </div>
 
                 {/* Calendar Grid */}
-                <div className="grid grid-cols-7 bg-white/30">
+                <div className="grid grid-cols-7 bg-slate-100 dark:bg-slate-800 gap-[1px]">
                     {days.map((day, idx) => {
                         const dateKey = format(day, 'yyyy-MM-dd');
                         return (
@@ -90,10 +90,6 @@ export function Calendar() {
                 date={selectedDate}
                 events={events}
             />
-
-            {/* Background decoration */}
-            <div className="fixed top-20 left-20 w-96 h-96 bg-purple-200/30 rounded-full blur-[100px] -z-10 animate-float" />
-            <div className="fixed bottom-20 right-20 w-96 h-96 bg-blue-200/30 rounded-full blur-[100px] -z-10 animate-float" style={{ animationDelay: '2s' }} />
         </div>
     );
 }
