@@ -7,7 +7,7 @@ export function CalendarProvider({ children }) {
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
-        fetch('https://cdn.crisu.qzz.io/calendario/events.json')
+        fetch('https://cdn.crisu.qzz.io/services/calendario/events.json')
             .then(response => response.json())
             .then(data => {
                 const parsedEvents = data.map(event => ({
