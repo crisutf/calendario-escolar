@@ -4,7 +4,7 @@ Este proyecto es un **calendario escolar** diseñado para informar a los alumnos
 
 ## 🌐 URLs del proyecto
 
-- Página principal: **[https://calendario.crisu.qzz.io/](https://calendario.crisu.qzz.io/)**
+- Página principal: **[https://digital.crisu.qzz.io/](https://digital.crisu.qzz.io/)**
 
 ## 🛠️ Tecnologías utilizadas 🛠️
 
