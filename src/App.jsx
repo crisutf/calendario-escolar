@@ -44,11 +44,11 @@ function Layout() {
   return (
     <div className={`min-h-screen py-6 sm:py-12 px-4 font-sans selection:bg-slate-900 selection:text-white transition-colors duration-500 bg-slate-50 dark:bg-slate-950`}>
       <ThemeToggle />
-      
+
       <div className="max-w-7xl mx-auto mb-8 sm:mb-16 text-left relative z-10 px-4">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div className="flex-1">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-3 mb-4"
@@ -58,8 +58,8 @@ function Layout() {
                 Esto es un:
               </span>
             </motion.div>
-            
-            <motion.h1 
+
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -69,7 +69,7 @@ function Layout() {
             </motion.h1>
           </div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
@@ -77,7 +77,7 @@ function Layout() {
           >
             <div className="text-right">
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Periodo Lectivo</p>
-              <p className="text-xl font-bold text-slate-800 dark:text-slate-200">2025 — 2026</p>
+              <p className="text-xl font-bold text-slate-800 dark:text-slate-200">2026 — 2027</p>
             </div>
             <div className="h-10 w-[1px] bg-slate-200 dark:bg-slate-800" />
             <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900">
@@ -88,7 +88,7 @@ function Layout() {
       </div>
 
       <Calendar />
-      
+
       <footer className="max-w-7xl mx-auto mt-16 pb-8 px-4 text-center text-slate-400 dark:text-slate-600 text-[10px] font-bold tracking-[0.4em] uppercase border-t border-slate-200 dark:border-slate-800 pt-8">
         <div>Crisutf</div>
       </footer>
