@@ -28,7 +28,7 @@ export default function Login() {
   const from = location.state?.from || '/panel';
 
   // Formularios
-  const [email, setEmail] = useState('cristiancorban210@gmail.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
