@@ -162,7 +162,7 @@ export default function Login() {
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5 font-medium">
               <GraduationCap className="w-4 h-4 text-indigo-500" />
-              Gestión docente y administración escolar
+              Gestión del calendario
             </p>
           </div>
 
