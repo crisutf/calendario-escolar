@@ -38,7 +38,7 @@ function SidebarContent({ onClose, pendingCount }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const role = user?.role || 'profesor';
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
   const isTutor = role === 'tutor' || isAdmin;
 
   const navItems = [
@@ -229,7 +229,7 @@ export default function PanelLayout() {
   const [pendingCount, setPendingCount] = useState(0);
   const { user } = useAuth();
   const role = user?.role || 'profesor';
-  const isTutor = role === 'tutor' || role === 'admin';
+  const isTutor = role === 'tutor' || role === 'admin' || role === 'root' || !!user?.isRoot;
 
   useEffect(() => {
     if (!isTutor) return;

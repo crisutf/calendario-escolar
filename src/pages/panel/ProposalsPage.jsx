@@ -54,7 +54,7 @@ function StatusBadge({ status }) {
 export default function ProposalsPage() {
   const { user } = useAuth();
   const role = user?.role || 'profesor';
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
   const isTutor = role === 'tutor' || isAdmin;
 
   const [loading, setLoading] = useState(true);

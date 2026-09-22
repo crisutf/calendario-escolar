@@ -11,6 +11,9 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const data = await api.get('/api/auth/me');
+      if (data?.token && typeof window !== 'undefined') {
+        localStorage.setItem('auth_token', data.token);
+      }
       setUser(data?.user || data || null);
     } catch (err) {
       if (typeof window !== 'undefined') {

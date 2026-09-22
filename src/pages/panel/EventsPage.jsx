@@ -38,7 +38,7 @@ export default function EventsPage() {
   const { user } = useAuth();
   const { refetch: refreshCalendar } = useCalendar();
   const role = user?.role || 'profesor';
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
   const isTutor = role === 'tutor' || isAdmin;
   const canCreate = isTutor;
   const canEdit = isTutor;

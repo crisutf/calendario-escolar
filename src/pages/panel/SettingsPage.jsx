@@ -91,7 +91,7 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const { refetch: refreshCalendar, maintenance: initial } = useCalendar();
   const role = user?.role || '';
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
 
   const [saving, setSaving] = useState(false);
   const [loadingInfo, setLoadingInfo] = useState(true);

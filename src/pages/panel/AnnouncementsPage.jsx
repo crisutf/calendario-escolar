@@ -44,7 +44,7 @@ function priorityConfig(priority) {
 export default function AnnouncementsPage() {
   const { user } = useAuth();
   const role = user?.role || '';
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
   const isTutor = role === 'tutor' || isAdmin;
   const canEdit = isTutor;
 

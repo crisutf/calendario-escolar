@@ -29,6 +29,7 @@ import { cn } from '../../lib/utils';
 
 function RoleBadge({ role }) {
   const map = {
+    root: { label: 'Root (Servidor)', cls: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-500/40 font-black', icon: Crown },
     admin: { label: 'Admin', cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300', icon: Crown },
     tutor: { label: 'Tutor', cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300', icon: Shield },
     profesor: { label: 'Profesor', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', icon: GraduationCap },
@@ -73,7 +74,8 @@ function Avatar({ user }) {
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
   const role = currentUser?.role || '';
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'root' || !!currentUser?.isRoot;
+  const isRootCaller = role === 'root' || !!currentUser?.isRoot || currentUser?.email?.toLowerCase() === 'cristiancorban210@gmail.com';
 
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
@@ -106,7 +108,7 @@ export default function UsersPage() {
 
   const stats = useMemo(() => {
     const total = users.length;
-    const admin = users.filter((u) => u.role === 'admin').length;
+    const admin = users.filter((u) => u.role === 'admin' || u.role === 'root' || u.isRoot).length;
     const tutor = users.filter((u) => u.role === 'tutor').length;
     const profesor = users.filter((u) => u.role === 'profesor' || !u.role).length;
     return { total, admin, tutor, profesor };
@@ -343,19 +345,28 @@ export default function UsersPage() {
                           </div>
                         </td>
                         <td className="px-5 sm:px-6 py-4">
-                          <div className="flex flex-col gap-2 items-start">
-                            <select
-                              value={displayRole}
-                              disabled={isSelf}
-                              onChange={(e) => queueRoleUpdate(u.id, e.target.value)}
-                              className="py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                              <option value="admin">Admin</option>
-                              <option value="tutor">Tutor</option>
-                              <option value="profesor">Profesor</option>
-                            </select>
-                            <RoleBadge role={displayRole} />
-                          </div>
+                          {(() => {
+                            const isTargetRoot = u.role === 'root' || !!u.isRoot || u.email?.toLowerCase() === 'cristiancorban210@gmail.com';
+                            const isTargetAdmin = u.role === 'admin';
+                            const canChangeRole = !isTargetRoot && (isRootCaller || (!isTargetAdmin && !isSelf));
+
+                            return (
+                              <div className="flex flex-col gap-2 items-start">
+                                <select
+                                  value={displayRole}
+                                  disabled={!canChangeRole}
+                                  onChange={(e) => queueRoleUpdate(u.id, e.target.value)}
+                                  className="py-2 px-3 rounded-xl text-xs font-semibold bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                  {isTargetRoot && <option value="root">Root (Servidor)</option>}
+                                  <option value="admin">Admin</option>
+                                  <option value="tutor">Tutor</option>
+                                  <option value="profesor">Profesor</option>
+                                </select>
+                                <RoleBadge role={displayRole} />
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="px-5 sm:px-6 py-4 hidden sm:table-cell">
                           {showSubject ? (
@@ -370,47 +381,75 @@ export default function UsersPage() {
                           )}
                         </td>
                         <td className="px-5 sm:px-6 py-4">
-                          <div className="flex items-center justify-end gap-1.5 sm:gap-2">
-                            {/* Cambiar contraseña */}
-                            <button
-                              onClick={() => setPasswordModalUser(u)}
-                              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                              title="Cambiar contraseña de usuario"
-                            >
-                              <KeyRound className="w-4 h-4" />
-                            </button>
+                          {(() => {
+                            const isTargetRoot = u.role === 'root' || !!u.isRoot || u.email?.toLowerCase() === 'cristiancorban210@gmail.com';
+                            const isTargetAdmin = u.role === 'admin';
+                            const canChangePassword = isTargetRoot ? isSelf : (isTargetAdmin ? (isRootCaller || isSelf) : true);
+                            const passwordTitle = isTargetRoot && !isSelf
+                              ? 'Ningún administrador puede cambiar la contraseña del usuario root'
+                              : (isTargetAdmin && !isRootCaller && !isSelf
+                                ? 'Los administradores solo pueden cambiar su propia contraseña'
+                                : 'Cambiar contraseña de usuario');
 
-                            {/* Guardar cambios de rol/asignatura */}
-                            <button
-                              onClick={() => saveRow(u)}
-                              disabled={!hasChanges}
-                              className={cn(
-                                'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-[0.97]',
-                                hasChanges
-                                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/25'
-                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                              )}
-                              title="Guardar cambios"
-                            >
-                              <Save className="w-4 h-4" />
-                              <span className="hidden sm:inline">Guardar</span>
-                            </button>
+                            const canDelete = !isTargetRoot && !isSelf && (!isTargetAdmin || isRootCaller);
+                            const deleteTitle = isTargetRoot
+                              ? 'La cuenta root del servidor no puede ser eliminada'
+                              : (isSelf
+                                ? 'No puedes eliminarte a ti mismo'
+                                : (isTargetAdmin && !isRootCaller
+                                  ? 'Solo el usuario root puede eliminar a otros administradores'
+                                  : 'Eliminar usuario'));
 
-                            {/* Eliminar usuario */}
-                            <button
-                              onClick={() => setConfirmDelete(u)}
-                              disabled={isSelf}
-                              className={cn(
-                                'p-2 rounded-xl transition-colors',
-                                isSelf
-                                  ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
-                                  : 'text-slate-500 dark:text-slate-400 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400'
-                              )}
-                              title={isSelf ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                            return (
+                              <div className="flex items-center justify-end gap-1.5 sm:gap-2">
+                                {/* Cambiar contraseña */}
+                                <button
+                                  onClick={() => canChangePassword && setPasswordModalUser(u)}
+                                  disabled={!canChangePassword}
+                                  className={cn(
+                                    'p-2 rounded-xl transition-colors',
+                                    canChangePassword
+                                      ? 'text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400'
+                                      : 'text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-50'
+                                  )}
+                                  title={passwordTitle}
+                                >
+                                  <KeyRound className="w-4 h-4" />
+                                </button>
+
+                                {/* Guardar cambios de rol/asignatura */}
+                                <button
+                                  onClick={() => saveRow(u)}
+                                  disabled={!hasChanges}
+                                  className={cn(
+                                    'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-[0.97]',
+                                    hasChanges
+                                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/25'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                                  )}
+                                  title="Guardar cambios"
+                                >
+                                  <Save className="w-4 h-4" />
+                                  <span className="hidden sm:inline">Guardar</span>
+                                </button>
+
+                                {/* Eliminar usuario */}
+                                <button
+                                  onClick={() => canDelete && setConfirmDelete(u)}
+                                  disabled={!canDelete}
+                                  className={cn(
+                                    'p-2 rounded-xl transition-colors',
+                                    canDelete
+                                      ? 'text-slate-500 dark:text-slate-400 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400'
+                                      : 'text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-50'
+                                  )}
+                                  title={deleteTitle}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            );
+                          })()}
                         </td>
                       </motion.tr>
                     );
