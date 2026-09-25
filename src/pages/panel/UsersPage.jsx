@@ -7,8 +7,6 @@ import {
   AlertTriangle,
   UserCog,
   UserPlus,
-  Shield,
-  GraduationCap,
   Crown,
   Save,
   KeyRound,
@@ -31,10 +29,8 @@ function RoleBadge({ role }) {
   const map = {
     root: { label: 'Root (Servidor)', cls: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-500/40 font-black', icon: Crown },
     admin: { label: 'Admin', cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300', icon: Crown },
-    tutor: { label: 'Tutor', cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300', icon: Shield },
-    profesor: { label: 'Profesor', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', icon: GraduationCap },
   };
-  const cfg = map[role] || map.profesor;
+  const cfg = map[role] || map.admin;
   const Icon = cfg.icon;
   return (
     <span className={cn('inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider', cfg.cls)}>
@@ -81,7 +77,6 @@ export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [pendingRole, setPendingRole] = useState({});
-  const [pendingSubject, setPendingSubject] = useState({});
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   // Modales
@@ -109,9 +104,7 @@ export default function UsersPage() {
   const stats = useMemo(() => {
     const total = users.length;
     const admin = users.filter((u) => u.role === 'admin' || u.role === 'root' || u.isRoot).length;
-    const tutor = users.filter((u) => u.role === 'tutor').length;
-    const profesor = users.filter((u) => u.role === 'profesor' || !u.role).length;
-    return { total, admin, tutor, profesor };
+    return { total, admin };
   }, [users]);
 
   const visible = useMemo(() => {
@@ -119,7 +112,7 @@ export default function UsersPage() {
     const q = search.toLowerCase();
     return users.filter(
       (u) =>
-        `${u.name || ''} ${u.email || ''} ${u.subject || ''} ${u.role || ''}`.toLowerCase().includes(q)
+        `${u.name || ''} ${u.email || ''} ${u.role || ''}`.toLowerCase().includes(q)
     );
   }, [users, search]);
 
@@ -127,21 +120,10 @@ export default function UsersPage() {
     setPendingRole((p) => ({ ...p, [userId]: role }));
   };
 
-  const queueSubjectUpdate = (userId, subject) => {
-    setPendingSubject((p) => ({ ...p, [userId]: subject }));
-  };
-
   const saveRow = async (u) => {
     const newRole = pendingRole[u.id];
-    const newSubject = pendingSubject[u.id];
     const body = {};
     if (newRole && newRole !== u.role) body.role = newRole;
-    const effectiveSubject = newRole === 'profesor' || (!newRole && u.role === 'profesor')
-      ? newSubject ?? u.subject ?? ''
-      : undefined;
-    if (effectiveSubject !== undefined && effectiveSubject !== (u.subject || '')) {
-      body.subject = effectiveSubject;
-    }
     if (!Object.keys(body).length) {
       toast.info('No hay cambios para guardar');
       return;
@@ -150,11 +132,6 @@ export default function UsersPage() {
       await api.put(`/api/admin/users/${u.id}`, body);
       toast.success('Usuario actualizado');
       setPendingRole((p) => {
-        const c = { ...p };
-        delete c[u.id];
-        return c;
-      });
-      setPendingSubject((p) => {
         const c = { ...p };
         delete c[u.id];
         return c;
@@ -211,7 +188,7 @@ export default function UsersPage() {
             Usuarios
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-            Gestiona roles, asignaturas, contraseñas y accesos al panel
+            Gestiona administradores, contraseñas y accesos al panel
           </p>
         </div>
 
@@ -229,12 +206,10 @@ export default function UsersPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-2 gap-4"
       >
         <StatMini label="Total" value={stats.total} icon={Users} gradient="linear-gradient(135deg,#6366f1,#8b5cf6)" />
         <StatMini label="Admin" value={stats.admin} icon={Crown} gradient="linear-gradient(135deg,#f43f5e,#e11d48)" />
-        <StatMini label="Tutores" value={stats.tutor} icon={Shield} gradient="linear-gradient(135deg,#8b5cf6,#6366f1)" />
-        <StatMini label="Profesores" value={stats.profesor} icon={GraduationCap} gradient="linear-gradient(135deg,#10b981,#059669)" />
       </motion.div>
 
       {/* Buscador */}
@@ -252,7 +227,7 @@ export default function UsersPage() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nombre, email, asignatura..."
+            placeholder="Buscar por nombre, email..."
             className="w-full pl-10 pr-4 py-2.5 rounded-2xl text-sm font-medium bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all"
           />
         </div>
@@ -282,9 +257,6 @@ export default function UsersPage() {
                   <th className="text-left px-5 sm:px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
                     Rol
                   </th>
-                  <th className="text-left px-5 sm:px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 hidden sm:table-cell">
-                    Asignatura
-                  </th>
                   <th className="text-right px-5 sm:px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
                     Acciones
                   </th>
@@ -294,10 +266,8 @@ export default function UsersPage() {
                 <AnimatePresence initial={false}>
                   {visible.map((u, idx) => {
                     const isSelf = u.id === currentUser?.id || u.email === currentUser?.email;
-                    const displayRole = pendingRole[u.id] ?? u.role ?? 'profesor';
-                    const displaySubject = pendingSubject[u.id] ?? u.subject ?? '';
-                    const hasChanges = pendingRole[u.id] !== undefined || pendingSubject[u.id] !== undefined;
-                    const showSubject = displayRole === 'profesor';
+                    const displayRole = pendingRole[u.id] ?? u.role ?? 'admin';
+                    const hasChanges = pendingRole[u.id] !== undefined;
 
                     return (
                       <motion.tr
@@ -360,25 +330,11 @@ export default function UsersPage() {
                                 >
                                   {isTargetRoot && <option value="root">Root (Servidor)</option>}
                                   <option value="admin">Admin</option>
-                                  <option value="tutor">Tutor</option>
-                                  <option value="profesor">Profesor</option>
                                 </select>
                                 <RoleBadge role={displayRole} />
                               </div>
                             );
                           })()}
-                        </td>
-                        <td className="px-5 sm:px-6 py-4 hidden sm:table-cell">
-                          {showSubject ? (
-                            <input
-                              value={displaySubject}
-                              onChange={(e) => queueSubjectUpdate(u.id, e.target.value)}
-                              placeholder="Ej: Matemáticas"
-                              className="w-full max-w-[220px] px-3 py-2 rounded-xl text-xs font-medium bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-                            />
-                          ) : (
-                            <span className="text-xs text-slate-400 italic">—</span>
-                          )}
                         </td>
                         <td className="px-5 sm:px-6 py-4">
                           {(() => {
@@ -402,7 +358,6 @@ export default function UsersPage() {
 
                             return (
                               <div className="flex items-center justify-end gap-1.5 sm:gap-2">
-                                {/* Cambiar contraseña */}
                                 <button
                                   onClick={() => canChangePassword && setPasswordModalUser(u)}
                                   disabled={!canChangePassword}
@@ -417,7 +372,6 @@ export default function UsersPage() {
                                   <KeyRound className="w-4 h-4" />
                                 </button>
 
-                                {/* Guardar cambios de rol/asignatura */}
                                 <button
                                   onClick={() => saveRow(u)}
                                   disabled={!hasChanges}
@@ -433,7 +387,6 @@ export default function UsersPage() {
                                   <span className="hidden sm:inline">Guardar</span>
                                 </button>
 
-                                {/* Eliminar usuario */}
                                 <button
                                   onClick={() => canDelete && setConfirmDelete(u)}
                                   disabled={!canDelete}
@@ -515,8 +468,6 @@ function CreateUserModal({ onClose, onCreated }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState('profesor');
-  const [subject, setSubject] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const generatePassword = () => {
@@ -543,8 +494,7 @@ function CreateUserModal({ onClose, onCreated }) {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,
-        role,
-        subject: role === 'profesor' ? subject.trim() : null,
+        role: 'admin',
       });
       toast.success(`Usuario "${name}" añadido correctamente`);
       onCreated();
@@ -660,48 +610,18 @@ function CreateUserModal({ onClose, onCreated }) {
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
               Rol en el Centro
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { id: 'profesor', label: 'Profesor', icon: GraduationCap },
-                { id: 'tutor', label: 'Tutor', icon: Shield },
-                { id: 'admin', label: 'Admin', icon: Crown },
-              ].map((item) => {
-                const Icon = item.icon;
-                const active = role === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setRole(item.id)}
-                    className={cn(
-                      'flex flex-col items-center justify-center p-3 rounded-2xl border text-xs font-bold transition-all',
-                      active
-                        ? 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-500 text-indigo-600 dark:text-indigo-300 shadow-sm'
-                        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
-                    )}
-                  >
-                    <Icon className="w-4 h-4 mb-1" />
-                    {item.label}
-                  </button>
-                );
-              })}
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-900/50">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 flex items-center justify-center flex-shrink-0">
+                <Crown className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-black text-slate-900 dark:text-white">Administrador</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Acceso completo al panel de administración
+                </p>
+              </div>
             </div>
           </div>
-
-          {role === 'profesor' && (
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
-                Asignatura / Departamento
-              </label>
-              <input
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="Ej: Matemáticas, Inglés, Lengua..."
-                className="w-full px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-              />
-            </div>
-          )}
 
           <div className="flex items-center justify-end gap-3 pt-3">
             <button

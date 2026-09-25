@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   Plus,
   Megaphone,
-  RefreshCw,
   CalendarDays,
   ChevronRight,
 } from 'lucide-react';
@@ -57,7 +56,6 @@ export default function AnnouncementsPage() {
   const [body, setBody] = useState('');
   const [priority, setPriority] = useState('medium');
   const [expiresAt, setExpiresAt] = useState('');
-  const [sendPush, setSendPush] = useState(false);
 
   const fetchAnnouncements = async (opts = {}) => {
     try {
@@ -99,7 +97,6 @@ export default function AnnouncementsPage() {
     setBody('');
     setPriority('medium');
     setExpiresAt('');
-    setSendPush(false);
   };
 
   const handleSubmit = async (e) => {
@@ -119,38 +116,12 @@ export default function AnnouncementsPage() {
       await api.post('/api/admin/announcements', payload);
       toast.success('Comunicado enviado');
 
-      if (sendPush) {
-        try {
-          await api.post('/api/admin/push/send', {
-            title: title.trim(),
-            body: body.trim(),
-            url: '/',
-          });
-          toast.success('Notificación push enviada');
-        } catch (err) {
-          toast.error('Comunicado creado, pero falló el push: ' + (err.message || ''));
-        }
-      }
-
       resetForm();
       await fetchAnnouncements({ silent: true });
     } catch (err) {
       toast.error(err.message || 'Error al enviar comunicado');
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const resendPush = async (a) => {
-    try {
-      await api.post('/api/admin/push/send', {
-        title: a.title || 'Comunicado',
-        body: a.body || a.message || a.content || '',
-        url: '/',
-      });
-      toast.success('Notificación push reenviada');
-    } catch (err) {
-      toast.error(err.message || 'Error al reenviar');
     }
   };
 
@@ -256,24 +227,6 @@ export default function AnnouncementsPage() {
                 </Field>
               </div>
 
-              <label className="flex items-center gap-3 p-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={sendPush}
-                  onChange={(e) => setSendPush(e.target.checked)}
-                  className="w-4.5 h-4.5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500/40"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-indigo-500" />
-                    Enviar notificación push a suscriptores
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
-                    Los usuarios que hayan aceptado notificaciones la recibirán en su dispositivo.
-                  </p>
-                </div>
-              </label>
-
               <button
                 type="submit"
                 disabled={submitting}
@@ -348,13 +301,6 @@ export default function AnnouncementsPage() {
                         </div>
                         {canEdit && (
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            <button
-                              onClick={() => resendPush(a)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                              title="Reenviar notificación push"
-                            >
-                              <RefreshCw className="w-4 h-4" />
-                            </button>
                             <button
                               onClick={() => setConfirmDelete(a)}
                               className="p-1.5 rounded-lg text-slate-400 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"

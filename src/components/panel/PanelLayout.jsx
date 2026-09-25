@@ -5,7 +5,6 @@ import {
   Calendar,
   Home,
   CalendarDays,
-  Inbox,
   Bell,
   Users,
   Settings,
@@ -34,24 +33,15 @@ function Badge({ count, className }) {
   );
 }
 
-function SidebarContent({ onClose, pendingCount }) {
+function SidebarContent({ onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const role = user?.role || 'profesor';
+  const role = user?.role || 'admin';
   const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
-  const isTutor = role === 'tutor' || isAdmin;
 
   const navItems = [
     { path: '/panel', icon: Home, label: 'Panel', end: true, show: true },
     { path: '/panel/eventos', icon: CalendarDays, label: 'Eventos', show: true },
-    {
-      path: '/panel/propuestas',
-      icon: Inbox,
-      label: 'Propuestas',
-      show: true,
-      badge: isTutor ? pendingCount : null,
-      badgeClass: 'bg-amber-500 text-white',
-    },
     { path: '/panel/comunicados', icon: Bell, label: 'Comunicados', show: true },
     { path: '/panel/usuarios', icon: Users, label: 'Usuarios', show: isAdmin },
     { path: '/panel/configuracion', icon: Settings, label: 'Configuración', show: isAdmin },
@@ -81,15 +71,13 @@ function SidebarContent({ onClose, pendingCount }) {
 
   const roleLabel = {
     admin: 'Administrador',
-    tutor: 'Tutor',
-    profesor: 'Profesor',
-  }[role] || role;
+    root: 'Administrador',
+  }[role] || 'Administrador';
 
   const roleClass = {
     admin: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-    tutor: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-    profesor: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  }[role];
+    root: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-500/30',
+  }[role] || 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300';
 
   return (
     <div className="flex flex-col h-full">
@@ -226,29 +214,9 @@ function SidebarContent({ onClose, pendingCount }) {
 
 export default function PanelLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [pendingCount, setPendingCount] = useState(0);
   const { user } = useAuth();
-  const role = user?.role || 'profesor';
-  const isTutor = role === 'tutor' || role === 'admin' || role === 'root' || !!user?.isRoot;
-
-  useEffect(() => {
-    if (!isTutor) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await api.get('/api/admin/proposals');
-        if (cancelled) return;
-        const data = res?.data || res?.proposals || res || [];
-        const pending = Array.isArray(data) ? data.filter((p) => p.status === 'pending' || !p.status).length : 0;
-        setPendingCount(pending);
-      } catch {
-        if (!cancelled) setPendingCount(0);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isTutor]);
+  const role = user?.role || 'admin';
+  const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
 
   useEffect(() => {
     const handleResize = () => {
@@ -274,7 +242,7 @@ export default function PanelLayout() {
       <aside className="hidden lg:flex lg:flex-col fixed inset-y-0 left-0 w-64 xl:w-72 z-30 z-40">
         <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/60" />
         <div className="relative flex-1 flex flex-col">
-          <SidebarContent pendingCount={pendingCount} />
+          <SidebarContent />
         </div>
       </aside>
 
@@ -310,7 +278,7 @@ export default function PanelLayout() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <SidebarContent onClose={() => setSidebarOpen(false)} pendingCount={pendingCount} />
+                <SidebarContent onClose={() => setSidebarOpen(false)} />
               </div>
             </motion.aside>
           </>

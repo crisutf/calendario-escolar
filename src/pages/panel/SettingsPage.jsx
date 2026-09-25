@@ -12,12 +12,26 @@ import {
   XCircle,
   Shield,
   Info,
+  Download,
+  Smartphone,
+  RefreshCw,
+  Send,
+  FileText,
+  Server,
+  Terminal as TerminalIcon,
+  Clock,
+  Cpu,
+  HardDrive,
+  PlugZap,
+  Power,
+  MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import { useCalendar } from '../../hooks/useCalendar';
 import { cn } from '../../lib/utils';
+import { useInstallPWA } from '../../hooks/useInstallPWA';
 
 function Toggle({ checked, onChange, label, description, disabled }) {
   return (
@@ -57,14 +71,19 @@ function Toggle({ checked, onChange, label, description, disabled }) {
   );
 }
 
-function InfoRow({ icon: Icon, iconClass, label, value, ok, okLabel, badLabel }) {
+function InfoRow({ icon: Icon, iconClass, label, value, ok, okLabel, badLabel, onClick, actionLabel }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0 border-b border-slate-200/60 dark:border-slate-800/60 last:border-b-0">
       <div className="flex items-center gap-3 min-w-0">
         <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0', iconClass)}>
           <Icon className="w-4.5 h-4.5" />
         </div>
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 truncate">{label}</p>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 truncate">{label}</p>
+          {typeof ok !== 'boolean' && value && typeof value !== 'string' ? (
+            <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 truncate">{value.hint || ''}</p>
+          ) : null}
+        </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         {typeof ok === 'boolean' ? (
@@ -80,11 +99,47 @@ function InfoRow({ icon: Icon, iconClass, label, value, ok, okLabel, badLabel })
             </span>
           )
         ) : (
-          <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">{value}</p>
+          <p className="text-sm font-bold text-slate-900 dark:text-white font-mono truncate max-w-[180px]">
+            {typeof value === 'string' ? value : value?.text || 'N/A'}
+          </p>
+        )}
+        {onClick && (
+          <button
+            onClick={onClick}
+            className="ml-1 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+          >
+            <RefreshCw className="w-3 h-3" />
+            {actionLabel || 'Refrescar'}
+          </button>
         )}
       </div>
     </div>
   );
+}
+
+function formatUptime(seconds) {
+  if (!seconds || seconds < 0) return '0s';
+  const s = Math.floor(seconds);
+  const days = Math.floor(s / 86400);
+  const hours = Math.floor((s % 86400) / 3600);
+  const mins = Math.floor((s % 3600) / 60);
+  const secs = s % 60;
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0 || days > 0) parts.push(`${hours}h`);
+  if (mins > 0 || hours > 0 || days > 0) parts.push(`${mins}m`);
+  parts.push(`${secs}s`);
+  return parts.join(' ');
+}
+
+function formatBytes(bytes) {
+  if (bytes == null || isNaN(bytes)) return 'N/A';
+  const b = Number(bytes);
+  if (b === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(b) / Math.log(1024));
+  const val = b / Math.pow(1024, Math.min(i, units.length - 1));
+  return `${val.toFixed(val < 10 && i > 0 ? 2 : 1)} ${units[i]}`;
 }
 
 export default function SettingsPage() {
@@ -92,6 +147,7 @@ export default function SettingsPage() {
   const { refetch: refreshCalendar, maintenance: initial } = useCalendar();
   const role = user?.role || '';
   const isAdmin = role === 'admin' || role === 'root' || !!user?.isRoot;
+  const isRoot = role === 'root' || !!user?.isRoot || user?.email?.toLowerCase() === 'cristiancorban210@gmail.com';
 
   const [saving, setSaving] = useState(false);
   const [loadingInfo, setLoadingInfo] = useState(true);
@@ -100,49 +156,76 @@ export default function SettingsPage() {
   const [systemInfo, setSystemInfo] = useState({
     bunVersion: '',
     dbSize: '',
+    dbEngine: 'JSON Flat File',
     googleClientId: false,
     vapidPublicKey: false,
     vapidPrivateKey: false,
     environment: 'production',
+    platform: '',
+    arch: '',
+    uptimeSeconds: 0,
+    port: 0,
+    processId: null,
+    runtime: 'Bun',
+    counts: null,
+    storage: { files: [] },
   });
+
+  const installPWA = useInstallPWA();
 
   useEffect(() => {
     setMode(!!initial?.mode);
     setMessage(initial?.message || '');
   }, [initial?.mode, initial?.message]);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function loadInfo() {
-      try {
-        setLoadingInfo(true);
-        const info = await api.get('/api/admin/system/info').catch(() => null);
-        if (cancelled) return;
-        if (info) {
-          const data = info.data || info;
-          setSystemInfo({
-            bunVersion: data.bunVersion || data.bun_version || data.runtimeVersion || 'N/A',
-            dbSize: data.dbSize || data.db_size || 'N/A',
-            googleClientId: !!data.googleClientId || !!data.google_client_id || !!import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            vapidPublicKey: !!data.vapidPublicKey || !!data.vapid_public_key,
-            vapidPrivateKey: !!data.vapidPrivateKey || !!data.vapid_private_key,
-            environment: data.environment || data.NODE_ENV || 'production',
-          });
-        } else {
-          setSystemInfo((prev) => ({
-            ...prev,
-            googleClientId: !!import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          }));
-        }
-      } finally {
-        if (!cancelled) setLoadingInfo(false);
+  const loadSystemInfo = async () => {
+    try {
+      setLoadingInfo(true);
+      const info = await api.get('/api/admin/system/info').catch(() => null);
+      if (info) {
+        const data = info.data || info;
+        setSystemInfo({
+          bunVersion: data.bunVersion || data.bun_version || data.runtimeVersion || 'N/A',
+          dbSize: data.dbSize || data.db_size || data.storage?.totalSize || data.database?.size || 'N/A',
+          dbEngine: data.dbEngine || data.storage?.engine || data.database?.engine || 'JSON Flat File',
+          googleClientId: !!data.googleClientId || !!data.google_client_id || !!data.google?.clientId || !!import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          environment: data.environment || data.nodeEnv || data.NODE_ENV || 'production',
+          platform: data.platform || '',
+          arch: data.arch || '',
+          uptimeSeconds: Number(data.uptimeSeconds || 0),
+          port: Number(data.port || 0),
+          processId: data.processId || null,
+          runtime: data.runtime || (typeof Bun !== 'undefined' ? 'Bun' : 'Node'),
+          counts: data.counts || null,
+          storage: {
+            totalSize: data.storage?.totalSize || data.dbSize || 0,
+            engine: data.storage?.engine || data.dbEngine || 'JSON Flat File',
+            files: Array.isArray(data.storage?.files) ? data.storage.files : [],
+            path: data.storage?.path || './data',
+          },
+        });
+      } else {
+        setSystemInfo((prev) => ({
+          ...prev,
+          googleClientId: !!import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        }));
       }
+    } finally {
+      setLoadingInfo(false);
     }
-    loadInfo();
-    return () => {
-      cancelled = true;
-    };
+  };
+
+  useEffect(() => {
+    loadSystemInfo();
   }, []);
+
+  useEffect(() => {
+    if (!systemInfo.uptimeSeconds) return;
+    const iv = setInterval(() => {
+      setSystemInfo((s) => ({ ...s, uptimeSeconds: (s.uptimeSeconds || 0) + 1 }));
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [systemInfo.uptimeSeconds > 0]);
 
   const saveMaintenance = async () => {
     try {
@@ -155,6 +238,11 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleInstallClick = async () => {
+    const ok = await installPWA.promptInstall();
+    if (ok) toast.success('Instalación iniciada');
   };
 
   if (!isAdmin) {
@@ -189,7 +277,7 @@ export default function SettingsPage() {
           Configuración
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-          Modo mantenimiento, información del sistema y variables de entorno
+          Modo mantenimiento, información del sistema, instalación PWA y notificaciones
         </p>
       </motion.div>
 
@@ -256,16 +344,26 @@ export default function SettingsPage() {
           transition={{ delay: 0.1 }}
           className="rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 shadow-sm p-5 sm:p-7"
         >
-          <div className="flex items-center gap-2.5 mb-5">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <Activity className="w-5 h-5" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <Activity className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">Información del sistema</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                  Versiones, almacenamiento y variables de entorno
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white">Información del sistema</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
-                Versiones, base de datos y variables de entorno
-              </p>
-            </div>
+            <button
+              onClick={loadSystemInfo}
+              disabled={loadingInfo}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              title="Refrescar info"
+            >
+              <RefreshCw className={cn('w-3.5 h-3.5', loadingInfo && 'animate-spin')} />
+            </button>
           </div>
 
           {loadingInfo ? (
@@ -277,16 +375,16 @@ export default function SettingsPage() {
           ) : (
             <div>
               <InfoRow
-                icon={Activity}
+                icon={Cpu}
                 iconClass="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
-                label="Runtime (Bun/Node)"
-                value={systemInfo.bunVersion || 'N/A'}
+                label="Runtime"
+                value={{ text: systemInfo.bunVersion || 'N/A', hint: systemInfo.runtime }}
               />
               <InfoRow
                 icon={Database}
                 iconClass="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
-                label="Tamaño base de datos SQLite"
-                value={systemInfo.dbSize || 'N/A'}
+                label="Tamaño almacenamiento JSON"
+                value={{ text: systemInfo.dbSize, hint: systemInfo.storage?.engine }}
               />
               <InfoRow
                 icon={KeyRound}
@@ -297,18 +395,6 @@ export default function SettingsPage() {
                 badLabel="Sin configurar"
               />
               <InfoRow
-                icon={Bell}
-                iconClass="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
-                label="VAPID Push Keys"
-                ok={systemInfo.vapidPublicKey && systemInfo.vapidPrivateKey}
-                okLabel={systemInfo.vapidPublicKey && systemInfo.vapidPrivateKey ? 'Completas' : ''}
-                badLabel={
-                  !systemInfo.vapidPublicKey && !systemInfo.vapidPrivateKey
-                    ? 'Sin configurar'
-                    : 'Incompletas'
-                }
-              />
-              <InfoRow
                 icon={Info}
                 iconClass="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
                 label="Entorno"
@@ -317,6 +403,188 @@ export default function SettingsPage() {
             </div>
           )}
         </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="rounded-3xl bg-slate-950/95 dark:bg-slate-950 border border-slate-800/80 shadow-sm p-5 sm:p-7 overflow-hidden relative"
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 opacity-60" />
+          <div className="flex items-center justify-between mb-5 relative">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-slate-800 border border-slate-700/70 text-emerald-400 flex items-center justify-center">
+                <TerminalIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-black text-white">Terminal / Estado Servidor</h2>
+                <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                  Runtime, recursos y archivos de almacenamiento
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              Online
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <TerminalBadge icon={Clock} label="Uptime" value={formatUptime(systemInfo.uptimeSeconds)} accent="emerald" />
+              <TerminalBadge icon={Server} label="Plataforma" value={`${systemInfo.platform || '-'} / ${systemInfo.arch || '-'}`} accent="cyan" />
+              <TerminalBadge icon={PlugZap} label="Puerto / PID" value={`${systemInfo.port || '9234'}${systemInfo.processId ? ` / ${systemInfo.processId}` : ''}`} accent="violet" />
+              <TerminalBadge icon={Power} label="Runtime" value={`${systemInfo.runtime} ${systemInfo.bunVersion || ''}`.trim() || '-'} accent="rose" />
+            </div>
+
+            {systemInfo.counts && (
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <HardDrive className="w-4 h-4 text-slate-500" />
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Conteos Rápidos</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <MiniStat label="Eventos" value={systemInfo.counts.events || 0} />
+                  <MiniStat label="Exámenes" value={systemInfo.counts.exams || 0} />
+                  <MiniStat label="Festivos" value={systemInfo.counts.holidays || 0} />
+                  <MiniStat label="Comunicados" value={systemInfo.counts.announcements || 0} />
+                  <MiniStat label="Usuarios" value={systemInfo.counts.users || 0} />
+                  <MiniStat label="Admins" value={systemInfo.counts.admins || 0} tone="rose" />
+                </div>
+              </div>
+            )}
+
+            {systemInfo.storage?.files?.length > 0 && (
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-slate-500" />
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Almacenamiento JSON</p>
+                  </div>
+                  <p className="text-[11px] font-mono text-slate-500">{systemInfo.storage?.path || './data'}</p>
+                </div>
+                <div className="space-y-2">
+                  {systemInfo.storage.files.map((f, i) => (
+                    <FileBar key={f.name || i} name={f.name} size={f.size} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.section>
+
+        <div className="space-y-5 sm:space-y-6">
+          <motion.section
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 shadow-sm p-5 sm:p-7"
+          >
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="w-10 h-10 rounded-2xl bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                <Smartphone className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">Instalar Aplicación</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                  Instala el calendario como app nativa en tu dispositivo
+                </p>
+              </div>
+              {installPWA.isInstalled && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Instalada
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="rounded-2xl p-4 bg-gradient-to-br from-cyan-50/80 dark:from-cyan-950/20 dark:to-indigo-950/10 border border-cyan-200/60 dark:border-cyan-900/30">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400 flex items-center justify-center flex-shrink-0">
+                    <Download className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white mb-1">
+                      {installPWA.isInstalled ? 'La app ya está instalada' : installPWA.isInstallable ? 'Aplicación disponible' : 'Instrucciones'}
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                      {installPWA.isInstalled
+                        ? 'Accede a ella directamente desde tu escritorio, pantalla de inicio o menú de aplicaciones.'
+                        : installPWA.isInstallable
+                          ? 'Puedes instalarla para acceder sin navegador y recibir notificaciones.'
+                          : 'Desde tu navegador, usa el menú superior (⋮) → "Instalar aplicación" o "Añadir a pantalla de inicio".'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {installPWA.isInstallable && (
+                <button
+                  onClick={handleInstallClick}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-700 hover:to-indigo-700 text-white shadow-md shadow-cyan-500/25 transition-all active:scale-[0.98]"
+                >
+                  <Download className="w-5 h-5" />
+                  Instalar Aplicación
+                </button>
+              )}
+            </div>
+          </motion.section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TerminalBadge({ icon: Icon, label, value, accent }) {
+  const cls = {
+    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    cyan: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+    violet: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+    rose: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  }[accent || 'emerald'];
+  return (
+    <div className={cn('rounded-2xl border p-3 bg-slate-900/50', cls)}>
+      <div className="flex items-center gap-1.5 mb-1">
+        <Icon className="w-3 h-3 opacity-80" />
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80">{label}</p>
+      </div>
+      <p className="text-xs font-mono font-black truncate">{value}</p>
+    </div>
+  );
+}
+
+function MiniStat({ label, value, tone }) {
+  const color = {
+    amber: 'text-amber-400',
+    rose: 'text-rose-400',
+    emerald: 'text-emerald-400',
+  }[tone] || 'text-cyan-400';
+  return (
+    <div className="rounded-xl bg-slate-950/60 border border-slate-800/70 px-3 py-2">
+      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-0.5">{label}</p>
+      <p className={cn('text-sm font-black font-mono', color)}>{value}</p>
+    </div>
+  );
+}
+
+function FileBar({ name, size }) {
+  const s = Number(size) || 0;
+  const pct = Math.max(0, Math.min(100, (s / (1024 * 1024)) * 100));
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[11px] font-mono text-slate-300 truncate max-w-[70%]">{name || 'file.json'}</span>
+        <span className="text-[10px] font-mono text-slate-500 flex-shrink-0">{formatBytes(s)}</span>
+      </div>
+      <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500"
+          style={{ width: `${Math.max(2, pct)}%` }}
+        />
       </div>
     </div>
   );

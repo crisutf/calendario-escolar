@@ -10,7 +10,6 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import PanelLayout from './components/panel/PanelLayout.jsx';
 import Dashboard from './pages/panel/Dashboard.jsx';
 import EventsPage from './pages/panel/EventsPage.jsx';
-import ProposalsPage from './pages/panel/ProposalsPage.jsx';
 import AnnouncementsPage from './pages/panel/AnnouncementsPage.jsx';
 import UsersPage from './pages/panel/UsersPage.jsx';
 import SettingsPage from './pages/panel/SettingsPage.jsx';
@@ -45,7 +44,6 @@ createRoot(document.getElementById('root')).render(
                   <Route element={<PanelLayout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="eventos" element={<EventsPage />} />
-                    <Route path="propuestas" element={<ProposalsPage />} />
                     <Route path="comunicados" element={<AnnouncementsPage />} />
                     <Route path="usuarios" element={<UsersPage />} />
                     <Route path="configuracion" element={<SettingsPage />} />

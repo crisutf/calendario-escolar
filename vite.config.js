@@ -13,7 +13,10 @@ export default defineConfig({
         name: 'Calendario Escolar',
         short_name: 'Calendario',
         description: 'Calendario escolar con eventos y exámenes',
-        theme_color: '#ffffff',
+        theme_color: '#6366f1',
+        background_color: '#0f172a',
+        display: 'standalone',
+        start_url: '/',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -23,15 +26,20 @@ export default defineConfig({
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       },
       workbox: {
         cleanupOutdatedCaches: true,
         skipWaiting: true,
-        clientsClaim: true
-      }
+        clientsClaim: true,
+      },
+      srcDir: 'src',
+      filename: 'sw.js',
+      strategies: 'injectManifest',
+      injectRegister: 'auto',
     })
   ],
 })
