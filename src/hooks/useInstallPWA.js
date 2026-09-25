@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 
 export function useInstallPWA() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(
+    typeof window !== 'undefined' ? window.__deferredPrompt || null : null
+  );
+  const [isInstallable, setIsInstallable] = useState(
+    typeof window !== 'undefined' ? !!window.__deferredPrompt : false
+  );
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
@@ -13,36 +17,54 @@ export function useInstallPWA() {
       window.navigator.standalone === true;
     setIsInstalled(!!standalone);
 
+    if (window.__deferredPrompt) {
+      setDeferredPrompt(window.__deferredPrompt);
+      setIsInstallable(true);
+    }
+
     const handler = (e) => {
       e.preventDefault();
+      window.__deferredPrompt = e;
       setDeferredPrompt(e);
       setIsInstallable(true);
+    };
+
+    const promptReadyHandler = () => {
+      if (window.__deferredPrompt) {
+        setDeferredPrompt(window.__deferredPrompt);
+        setIsInstallable(true);
+      }
     };
 
     const installedHandler = () => {
       setIsInstalled(true);
       setIsInstallable(false);
+      window.__deferredPrompt = null;
       setDeferredPrompt(null);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('pwa-prompt-ready', promptReadyHandler);
     window.addEventListener('appinstalled', installedHandler);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('pwa-prompt-ready', promptReadyHandler);
       window.removeEventListener('appinstalled', installedHandler);
     };
   }, []);
 
   const promptInstall = async () => {
-    if (!deferredPrompt) return false;
+    const prompt = deferredPrompt || (typeof window !== 'undefined' ? window.__deferredPrompt : null);
+    if (!prompt) return false;
     try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      setDeferredPrompt(null);
-      setIsInstallable(false);
-      if (outcome === 'accepted') {
+      await prompt.prompt();
+      const choice = await prompt.userChoice;
+      if (choice && choice.outcome === 'accepted') {
         setIsInstalled(true);
+        setIsInstallable(false);
+        if (typeof window !== 'undefined') window.__deferredPrompt = null;
+        setDeferredPrompt(null);
         return true;
       }
       return false;

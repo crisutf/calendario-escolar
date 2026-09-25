@@ -22,32 +22,36 @@ import {
 } from 'lucide-react';
 import { format, isToday, isFuture, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import {
+  InstallFloatingButton,
+  InstallHeroBanner,
+} from './components/InstallAppPrompt';
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="fixed top-4 right-4 z-50 glass rounded-full p-1 flex items-center gap-1 shadow-lg border border-white/40 dark:border-white/10 dark:bg-slate-900/50">
+    <div className="fixed top-3 sm:top-4 right-3 sm:right-4 z-50 glass rounded-full p-0.5 sm:p-1 flex items-center gap-0.5 sm:gap-1 shadow-lg border border-white/40 dark:border-white/10 dark:bg-slate-900/50">
       <button
         onClick={() => setTheme('light')}
-        className={`p-2 rounded-full transition-all ${theme === 'light' ? 'bg-white text-yellow-500 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+        className={`p-1.5 sm:p-2 rounded-full transition-all ${theme === 'light' ? 'bg-white text-yellow-500 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
         title="Modo Claro"
       >
-        <Sun className="w-4 h-4" />
+        <Sun className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
       </button>
       <button
         onClick={() => setTheme('dark')}
-        className={`p-2 rounded-full transition-all ${theme === 'dark' ? 'bg-slate-700 text-purple-300 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+        className={`p-1.5 sm:p-2 rounded-full transition-all ${theme === 'dark' ? 'bg-slate-700 text-purple-300 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
         title="Modo Oscuro"
       >
-        <Moon className="w-4 h-4" />
+        <Moon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
       </button>
       <button
         onClick={() => setTheme('system')}
-        className={`p-2 rounded-full transition-all ${theme === 'system' ? 'bg-slate-200 text-slate-800 dark:bg-slate-600 dark:text-slate-200 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+        className={`p-1.5 sm:p-2 rounded-full transition-all ${theme === 'system' ? 'bg-slate-200 text-slate-800 dark:bg-slate-600 dark:text-slate-200 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
         title="Sistema"
       >
-        <Monitor className="w-4 h-4" />
+        <Monitor className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
       </button>
     </div>
   );
@@ -228,17 +232,18 @@ export function Layout() {
   const theme = useThemeMode(currentDate, events);
 
   return (
-    <div className={`min-h-screen py-4 sm:py-10 px-0 sm:px-4 font-sans selection:bg-slate-900 selection:text-white transition-colors duration-500 bg-slate-50 dark:bg-slate-950`}>
-      {/* Botón flotante para acceder al Panel de Control */}
-      <div className="fixed top-4 left-4 z-50">
+    <div className={`min-h-screen pt-16 sm:pt-10 pb-10 px-0 sm:px-4 font-sans selection:bg-slate-900 selection:text-white transition-colors duration-500 bg-slate-50 dark:bg-slate-950`}>
+      {/* Botones flotantes superiores: Panel de Control e Instalar App */}
+      <div className="fixed top-3 sm:top-4 left-3 sm:left-4 z-50 flex items-center gap-1.5 sm:gap-2">
         <Link
           to="/panel"
-          className="glass rounded-full px-3.5 py-1.5 flex items-center gap-2 shadow-lg border border-white/40 dark:border-white/10 bg-white/70 dark:bg-slate-900/70 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:scale-105 active:scale-95"
+          className="glass rounded-full px-2.5 sm:px-3.5 py-1.5 flex items-center gap-1.5 sm:gap-2 shadow-lg border border-white/40 dark:border-white/10 bg-white/70 dark:bg-slate-900/70 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:scale-105 active:scale-95"
           title="Acceder al Panel de Control"
         >
           <Shield className="w-3.5 h-3.5 text-indigo-500" />
-          <span>Panel</span>
+          <span className="hidden xs:inline sm:inline">Panel</span>
         </Link>
+        <InstallFloatingButton />
       </div>
 
       <ThemeToggle />
@@ -254,7 +259,7 @@ export function Layout() {
             >
               <div className="h-px w-8 bg-slate-400 dark:bg-slate-600" />
               <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase text-slate-500 dark:text-slate-400">
-                Esto es un:
+                Curso Académico
               </span>
             </motion.div>
 
@@ -275,7 +280,7 @@ export function Layout() {
             className="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm w-full sm:w-auto"
           >
             <div className="text-right flex-1 sm:flex-none">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Periodo Lectivo</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Período Lectivo</p>
               <p className="text-xl font-bold text-slate-800 dark:text-slate-200">2026 — 2027</p>
             </div>
             <div className="h-10 w-[1px] bg-slate-200 dark:bg-slate-800" />
@@ -285,6 +290,9 @@ export function Layout() {
           </motion.div>
         </div>
       </div>
+
+      {/* Banner destacado para instalar la aplicación en el inicio */}
+      <InstallHeroBanner />
 
       <AnnouncementsSection />
 

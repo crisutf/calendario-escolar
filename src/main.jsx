@@ -17,6 +17,15 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { CalendarProvider } from './context/CalendarProvider.jsx';
 
+// Capturar el evento de instalación nativa de la PWA de forma inmediata
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    window.__deferredPrompt = e;
+    window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+  });
+}
+
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 createRoot(document.getElementById('root')).render(

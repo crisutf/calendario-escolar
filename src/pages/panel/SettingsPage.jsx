@@ -12,8 +12,6 @@ import {
   XCircle,
   Shield,
   Info,
-  Download,
-  Smartphone,
   RefreshCw,
   Send,
   FileText,
@@ -31,7 +29,6 @@ import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import { useCalendar } from '../../hooks/useCalendar';
 import { cn } from '../../lib/utils';
-import { useInstallPWA } from '../../hooks/useInstallPWA';
 
 function Toggle({ checked, onChange, label, description, disabled }) {
   return (
@@ -156,10 +153,6 @@ export default function SettingsPage() {
   const [systemInfo, setSystemInfo] = useState({
     bunVersion: '',
     dbSize: '',
-    dbEngine: 'JSON Flat File',
-    googleClientId: false,
-    vapidPublicKey: false,
-    vapidPrivateKey: false,
     environment: 'production',
     platform: '',
     arch: '',
@@ -170,8 +163,6 @@ export default function SettingsPage() {
     counts: null,
     storage: { files: [] },
   });
-
-  const installPWA = useInstallPWA();
 
   useEffect(() => {
     setMode(!!initial?.mode);
@@ -277,7 +268,7 @@ export default function SettingsPage() {
           Configuración
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-          Modo mantenimiento, información del sistema, instalación PWA y notificaciones
+          Modo mantenimiento y diagnóstico del sistema
         </p>
       </motion.div>
 
@@ -408,7 +399,7 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="rounded-3xl bg-slate-950/95 dark:bg-slate-950 border border-slate-800/80 shadow-sm p-5 sm:p-7 overflow-hidden relative"
+          className="lg:col-span-2 rounded-3xl bg-slate-950/95 dark:bg-slate-950 border border-slate-800/80 shadow-sm p-5 sm:p-7 overflow-hidden relative"
         >
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 opacity-60" />
           <div className="flex items-center justify-between mb-5 relative">
@@ -444,7 +435,7 @@ export default function SettingsPage() {
               <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <HardDrive className="w-4 h-4 text-slate-500" />
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Conteos Rápidos</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Conteos rápidos</p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   <MiniStat label="Eventos" value={systemInfo.counts.events || 0} />
@@ -475,65 +466,6 @@ export default function SettingsPage() {
             )}
           </div>
         </motion.section>
-
-        <div className="space-y-5 sm:space-y-6">
-          <motion.section
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="rounded-3xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 shadow-sm p-5 sm:p-7"
-          >
-            <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-10 h-10 rounded-2xl bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
-                <Smartphone className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-black text-slate-900 dark:text-white">Instalar Aplicación</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
-                  Instala el calendario como app nativa en tu dispositivo
-                </p>
-              </div>
-              {installPWA.isInstalled && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Instalada
-                </span>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <div className="rounded-2xl p-4 bg-gradient-to-br from-cyan-50/80 dark:from-cyan-950/20 dark:to-indigo-950/10 border border-cyan-200/60 dark:border-cyan-900/30">
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400 flex items-center justify-center flex-shrink-0">
-                    <Download className="w-4.5 h-4.5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-black text-slate-900 dark:text-white mb-1">
-                      {installPWA.isInstalled ? 'La app ya está instalada' : installPWA.isInstallable ? 'Aplicación disponible' : 'Instrucciones'}
-                    </h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                      {installPWA.isInstalled
-                        ? 'Accede a ella directamente desde tu escritorio, pantalla de inicio o menú de aplicaciones.'
-                        : installPWA.isInstallable
-                          ? 'Puedes instalarla para acceder sin navegador y recibir notificaciones.'
-                          : 'Desde tu navegador, usa el menú superior (⋮) → "Instalar aplicación" o "Añadir a pantalla de inicio".'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {installPWA.isInstallable && (
-                <button
-                  onClick={handleInstallClick}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-700 hover:to-indigo-700 text-white shadow-md shadow-cyan-500/25 transition-all active:scale-[0.98]"
-                >
-                  <Download className="w-5 h-5" />
-                  Instalar Aplicación
-                </button>
-              )}
-            </div>
-          </motion.section>
-        </div>
       </div>
     </div>
   );
