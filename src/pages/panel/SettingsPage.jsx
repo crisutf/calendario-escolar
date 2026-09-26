@@ -231,10 +231,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleInstallClick = async () => {
-    const ok = await installPWA.promptInstall();
-    if (ok) toast.success('Instalación iniciada');
-  };
 
   if (!isAdmin) {
     return (

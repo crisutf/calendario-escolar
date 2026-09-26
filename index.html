@@ -14,12 +14,36 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="/manifest.webmanifest" />
   <script>
-    window.__deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', function (e) {
-      e.preventDefault();
-      window.__deferredPrompt = e;
-      window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
-    });
+    (function () {
+      try {
+        var isStandalone =
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+          window.matchMedia('(display-mode: minimal-ui)').matches ||
+          window.matchMedia('(display-mode: fullscreen)').matches ||
+          window.navigator.standalone === true ||
+          window.location.search.indexOf('source=pwa') !== -1 ||
+          window.location.search.indexOf('mode=standalone') !== -1;
+        if (isStandalone) {
+          document.documentElement.classList.add('is-pwa-standalone');
+          localStorage.setItem('cal_pwa_installed', 'true');
+        }
+      } catch (e) {}
+
+      window.__deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        window.__deferredPrompt = e;
+        window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+      });
+      window.addEventListener('appinstalled', function () {
+        try {
+          localStorage.setItem('cal_pwa_installed', 'true');
+        } catch (e) {}
+        window.__deferredPrompt = null;
+        window.dispatchEvent(new CustomEvent('pwa-installed-change', { detail: { isInstalled: true } }));
+      });
+    })();
   </script>
   <title>Calendario Escolar</title>
 </head>

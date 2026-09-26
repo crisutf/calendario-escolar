@@ -19,7 +19,9 @@ export default defineConfig({
         theme_color: '#6366f1',
         background_color: '#0f172a',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/?source=pwa',
+        scope: '/',
+        id: '/?source=pwa',
         icons: [
           {
             src: '/pwa-192x192.png',
@@ -32,7 +34,14 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'any maskable'
           }
-        ]
+        ],
+        related_applications: [
+          {
+            platform: 'webapp',
+            url: '/manifest.webmanifest'
+          }
+        ],
+        prefer_related_applications: false
       },
       workbox: {
         cleanupOutdatedCaches: true,

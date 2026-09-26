@@ -17,12 +17,20 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { CalendarProvider } from './context/CalendarProvider.jsx';
 
-// Capturar el evento de instalación nativa de la PWA de forma inmediata
-if (typeof window !== 'undefined') {
+// Garantizar captura del evento de instalación nativa de la PWA
+if (typeof window !== 'undefined' && !window.__pwaListenersRegistered) {
+  window.__pwaListenersRegistered = true;
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     window.__deferredPrompt = e;
     window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+  });
+  window.addEventListener('appinstalled', () => {
+    try {
+      localStorage.setItem('cal_pwa_installed', 'true');
+    } catch {}
+    window.__deferredPrompt = null;
+    window.dispatchEvent(new CustomEvent('pwa-installed-change', { detail: { isInstalled: true } }));
   });
 }
 

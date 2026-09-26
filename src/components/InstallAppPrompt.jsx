@@ -7,21 +7,19 @@ import { useInstallPWA } from '../hooks/useInstallPWA';
 export function InstallFloatingButton() {
   const installPWA = useInstallPWA();
 
-  const handleClick = async () => {
-    if (installPWA.isInstalled) {
-      toast.success('¡La aplicación ya está instalada en tu dispositivo!');
-      return;
-    }
-    const ok = await installPWA.promptInstall();
-    if (ok) {
-      toast.success('¡Instalación completada con éxito!');
-    }
-  };
-
-  // Si ya está instalada o el navegador no tiene listo el diálogo, no mostrar nada
-  if (installPWA.isInstalled || !installPWA.isInstallable) {
+  // Si ya está instalada, en modo app standalone o no es instalable, no mostrar nada
+  if (installPWA.isStandalone || installPWA.isInstalled || !installPWA.isInstallable) {
     return null;
   }
+
+  const handleClick = async () => {
+    const res = await installPWA.promptInstall();
+    if (res?.success) {
+      toast.success('¡Instalación completada con éxito!');
+    } else if (res?.alreadyInstalled) {
+      toast.success('¡La aplicación ya está instalada en tu dispositivo!');
+    }
+  };
 
   return (
     <motion.button
@@ -60,18 +58,19 @@ export function InstallHeroBanner() {
   };
 
   const handleClick = async () => {
-    if (installPWA.isInstalled) {
-      toast.success('¡La aplicación ya está instalada en tu dispositivo!');
-      return;
-    }
-    const ok = await installPWA.promptInstall();
-    if (ok) {
+    const res = await installPWA.promptInstall();
+    if (res?.success) {
       toast.success('¡Instalación completada con éxito!');
+    } else if (res?.alreadyInstalled) {
+      toast.success('¡La aplicación ya está instalada en tu dispositivo!');
     }
   };
 
-  // Solo mostrar el banner cuando el navegador esté listo para abrir el diálogo nativo y no esté ya instalada
-  if (installPWA.isInstalled || !installPWA.isInstallable || dismissed) return null;
+  // Si estamos en la app instalada (standalone), si ya está instalada en el sistema,
+  // si no es instalable o si el usuario cerró el banner, no renderizar nada
+  if (installPWA.isStandalone || installPWA.isInstalled || !installPWA.isInstallable || dismissed) {
+    return null;
+  }
 
   return (
     <motion.div
