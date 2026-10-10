@@ -82,3 +82,19 @@ Si no visualizas correctamente los cambios recientes, es necesario limpiar los d
 2. Dirígete a **Avanzado** > **Datos de sitios web**.
 3. Busca el dominio del calendario y del servidor.
 4. Elimina los datos asociados y recarga la página.
+
+---
+
+## 🤝 Conexión con el Backend
+
+Este frontend se comunica directamente con la aplicación backend del calendario:
+
+* **Repositorio del backend:** [calendario-escolar-backend](https://github.com/crisutf/calendario-escolar-backend)
+
+Para evitar problemas de CORS y asegurar que las peticiones fluyan correctamente, debes asegurarte de que el dominio y la URL estén correctamente configurados en las variables de entorno (`FRONTEND_URL` y `CORS_ORIGIN`) tanto en el backend como en el frontend.
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia **Commons Clause + MIT**. Consulta el archivo `LICENSE` para más detalles.
