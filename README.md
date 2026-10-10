@@ -1,77 +1,15 @@
 # 📅 Calendario Escolar — Crisutf
 
-Este proyecto es un **calendario escolar** diseñado para informar a los alumnos sobre **exámenes, entregas, excursiones, festivos** y otros eventos importantes del curso.
+Un calendario escolar rápido, ligero y diseñado para mantener a los alumnos informados sobre **exámenes, entregas, excursiones, festivos** y otros eventos importantes del curso.
+
+---
 
 ## 🌐 URLs del proyecto
 
-- Página principal: **[https://digital.crisu.qzz.io/](https://digital.crisu.qzz.io/)**
+- 📅 **Calendario:** [https://digital.crisu.qzz.io](https://digital.crisu.qzz.io)
+- ⚙️ **Servidor / Gestión:** [https://dev-management-digital-v1.crisu.qzz.io](https://dev-management-digital-v1.crisu.qzz.io)
 
-## 🛠️ Tecnologías utilizadas 🛠️
-
-- **Vite**
-- **React**
-- **TailwindCSS**
-
-La web es rápida, ligera y fácil de actualizar.
-
----
-
-
-## 🛠️ ¿Como arreglar los datos de la app? 🛠️
-Para que se vean correctamente los cambios de la versión del **11/12/2025**, es necesario borrar los datos guardados de la web.  
-> **Tranquilo:** esto **solo hace falta una vez**. Es porque la app cambió de URL; mientras no vuelva a cambiar de dominio, no tendrás que repetir este proceso.
-
-#### 🔹 Google Chrome
-1. Abre **Configuración**.  
-2. Entra en **Privacidad y seguridad**.  
-3. Ve a **Configuración del sitio**.  
-4. Pulsa **Ver permisos y datos almacenados en todos los sitios**.  
-5. Busca esta URL:
-   - `crisu.qzz.io`
-6. Pulsa **Eliminar datos** de la web.  
-7. Recarga la página.
-
-#### 🔹 Safari (iPhone, iPad o Mac)
-1. Abre **Ajustes** (iOS) o **Safari → Preferencias** (Mac).  
-2. Ve a **Avanzado → Datos de sitios web**.  
-3. Busca esta URL:
-   - `crisu.qzz.io`
-4. Elimina los datos de la web.  
-5. Recarga la página.
-6. Y ya esta
-
----
-
-## ✏️ Cómo añadir o editar eventos ✏️
-
-Los eventos están almacenados en el archivo:
-> donde tu quieras o puede que en tu servidor donde estara el JSON
-
-```
-src/data/events.json
-```
-
-Cada evento debe seguir esta estructura:
-
-```json
-{"date": "AAAA-MM-DD", "title": "Nombre del evento", "type": "event|exam|holiday"}
-```
-
-### 🔍 Explicación de los campos
-
-- **date** → Fecha en formato `Año-Mes-Día` (ejemplo: `2025-03-18`).
-- **title** → Nombre del evento.
-- **type** → Tipo de evento:
-  - `event` → Azul. Para entregas, excursiones o actividades.
-  - `exam` → Rojo. Para exámenes.
-  - `holiday` → Verde. Para festivos como Navidad, Semana Santa, etc.
-
-### 📌 Ejemplo 
-> Ahora se tiene que poner el JSON en otro server para que funcione
-
-```json
-{"date": "2025-02-14", "title": "Examen de Matemáticas", "type": "exam"}
-```
+> ⚠️ **Nota importante:** El enlace del servidor corresponde al entorno actual. Deberás actualizarlo con el enlace de tu propio servidor o dominio tras realizar el despliegue para que todo funcione y se configure correctamente.
 
 ---
 
@@ -81,22 +19,66 @@ Este calendario permite a los alumnos estar informados de todo lo importante dur
 
 ---
 
+## 🛠️ Tecnologías utilizadas
+
+* **Vite** — Entorno de desarrollo ultrarrápido
+* **React** — Librería para la interfaz de usuario
+* **TailwindCSS** — Framework de estilos
+
+---
+
 ## 🚀 Instalación y ejecución
 
-1. Instalar dependencias:
+Asegúrate de tener [Bun](https://bun.sh/) instalado en tu entorno local.
 
-```bash
-bun install
-```
+1. **Instalar dependencias:**
+   ```bash
+   bun install
+   ```
 
-2. Ejecutar en modo desarrollo:
+2. **Ejecutar en modo desarrollo:**
+   ```bash
+   bun run dev
+   ```
 
-```bash
-bun run dev
-```
+3. **Construir para producción:**
+   ```bash
+   bun run build
+   ```
 
-3. Construir para producción:
+---
 
-```bash
-bun run build
-```
+## ✏️ Cómo añadir o editar eventos
+
+Los eventos se administran de forma sencilla desde el propio panel de control de la aplicación:
+
+1. Dirígete a la esquina superior derecha del menú en la web y haz clic en el botón de acceso al panel de control.
+2. Inicia sesión con tus credenciales de administrador.
+
+### 🔑 Credenciales por defecto
+
+> ⚠️ **Seguridad:** Estas credenciales vienen configuradas por defecto, pero se recomienda encarecidamente modificarlas mediante un archivo `.env` en tu entorno para mayor control y seguridad.
+
+* **Correo electrónico:** `admin@crisutf.dev`
+* **Contraseña:** `D1g1t@l_Crisutf@_`
+
+---
+
+## 🛠️ Solución de problemas (Datos de la app)
+
+Si no visualizas correctamente los cambios recientes, es necesario limpiar los datos almacenados localmente en tu navegador debido a cambios previos de URL o versión.
+
+> 💡 **Nota:** Esto **solo es necesario hacerlo una vez** por cambio de dominio.
+
+### 🔹 Google Chrome
+1. Abre la **Configuración** del navegador.
+2. Ve a **Privacidad y seguridad** > **Configuración del sitio**.
+3. Selecciona **Ver permisos y datos almacenados en todos los sitios**.
+4. Busca el dominio del calendario y del servidor.
+5. Haz clic en **Eliminar datos** y recarga la página.
+
+### 🔹 Safari (iPhone, iPad o Mac)
+1. Abre **Ajustes** (en iOS) o **Safari → Preferencias** (en Mac).
+2. Dirígete a **Avanzado** > **Datos de sitios web**.
+3. Busca el dominio del calendario y del servidor.
+4. Elimina los datos asociados y recarga la página.
